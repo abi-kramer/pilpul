@@ -57,7 +57,7 @@ This will start Pilpul on `http://localhost:5000`.
 
 ### Logging in Locally
 
-From the home page at `http://localhost:5000`, enter any email (doesn't have to be a real one, it just has to follow the name@domain.com convention). With it being local development, a local sign-in link will appear to click on to 'log in' to Pilpul.
+From the home page at `http://localhost:5000`, enter any email (doesn't have to be a real one, it just has to follow the name@domain.com convention). With it being local development, a local sign-in link will appear to click on to 'log in' to Pilpul. After logging in, enter a name and city to continue.
 
 ### Creating a Room
 
@@ -65,21 +65,31 @@ Once logged in, you can select to create a room. From here you can title the tex
 
 ### Creating a Fake User
 
-<!-- TODO: clarify steps upon login - appears that /api/demo/seed-partner is called upon instantiation? -->
-
-Once logged in, you can select to find another partner, fill in the required fields, then select to enter the queue.
-
-To experience the session room solo, create a request from `/find`, land on `/queue`, then call:
+Once logged in, you can select to find another partner, fill in the required fields, then select to enter the queue. After doing so, open Developer Tools on the browser page and enter the following in the console tab:
 
 ```bash
-POST /api/demo/seed-partner
+await fetch("/api/demo/seed-partner", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  credentials: "include",
+  body: JSON.stringify({})
+}).then(r => r.json())
 ```
 
-```bash
-curl -X POST http://localhost:5000/api/demo/seed-partner
-```
+> Note: This is done in the same browser, because that session has been authenticated via login.
+
+This will create a fake partner, and automatically match the session with them. This will allow the room, and view the shared notebook.
 
 ## Using Resend
 
-<!-- TODO: document how to link resend into local devlopment -->
+Resend is an email API for development. This is what allows the use of login links for signing in to Pilpul. If using Resend, the following environment variables must be present in the `.env` file: `RESEND_API_KEY` and `RESEND_FROM_EMAIL`. The API key can be configured in the user Resend account.
 
+### Magic Links with Resend
+
+Resend requires a verified domain before sending and receiving emails. If one is not configured, Resend has the option of the default testing `resend.dev` domain (i.e. `onboarding@resend.dev` - as seen in the `.env.example` file). 
+
+If using this default domain, the magic link to login will only work with the email address that was used to set up the Resend account.
+
+> Note: If using Resend for magic links, the environment variable `ALLOW_DEV_MAGIC_LINKS` must be set to "true"
